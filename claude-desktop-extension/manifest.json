@@ -1,0 +1,187 @@
+{
+  "manifest_version": "0.2",
+  "name": "Producer Pal",
+  "version": "1.3.6",
+  "description": "AI music production assistant for Ableton Live. Generate and edit MIDI clips, control playback, manage tracks, scenes, and the arrangement.",
+  "long_description": "To use: Add the Producer Pal device (Producer_Pal.amxd) to an empty MIDI track in Ableton Live. Ask Claude Desktop (with this extension enabled): \"connect to ableton\".\nRequires Ableton Live 12.3+ with Max for Live (e.g. Ableton Live Suite).",
+  "author": {
+    "name": "Adam Murray",
+    "email": "adam@adammurray.link",
+    "url": "https://adammurray.link"
+  },
+  "homepage": "https://producer-pal.org",
+  "documentation": "https://producer-pal.org",
+  "support": "https://github.com/adamjmurray/producer-pal/discussions",
+  "icon": "producer-pal-logo.png",
+  "screenshots": [
+    "screenshot.png"
+  ],
+  "server": {
+    "type": "node",
+    "entry_point": "producer-pal-portal.js",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/producer-pal-portal.js"
+      ],
+      "env": {
+        "MCP_SERVER_ORIGIN": "${user_config.mcp_server_origin}",
+        "ENABLE_LOGGING": "${user_config.enable_logging}",
+        "VERBOSE_LOGGING": "${user_config.verbose_logging}"
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "Connect to Ableton",
+      "description": "Connect to Ableton Live and initialize Producer Pal."
+    },
+    {
+      "name": "Read Live Set",
+      "description": "Read Live Set global settings, tracks, scenes, devices, clips."
+    },
+    {
+      "name": "Update Live Set",
+      "description": "Update Live Set global settings or manage locators"
+    },
+    {
+      "name": "Create Track",
+      "description": "Create track(s)"
+    },
+    {
+      "name": "Read Track",
+      "description": "Read track settings, clips, devices."
+    },
+    {
+      "name": "Update Track",
+      "description": "Update track(s)"
+    },
+    {
+      "name": "Create Scene",
+      "description": "Create empty scene(s) or capture playing session clips"
+    },
+    {
+      "name": "Read Scene",
+      "description": "Read scene settings, clips"
+    },
+    {
+      "name": "Update Scene",
+      "description": "Updates scene(s)"
+    },
+    {
+      "name": "Create Clip",
+      "description": "Create MIDI or audio clip(s)."
+    },
+    {
+      "name": "Read Clip",
+      "description": "Read clip settings, MIDI notes, and audio properties"
+    },
+    {
+      "name": "Update Clip",
+      "description": "Update clip(s), MIDI notes, and warp markers (audio clips)"
+    },
+    {
+      "name": "Transform Clips",
+      "description": "Slice clips into repeating segments, shuffle arrangement positions, and/or randomize parameters for multiple clips efficiently"
+    },
+    {
+      "name": "Create Device",
+      "description": "Create a native Live device (instrument, MIDI effect, or audio effect) on a track or inside a chain"
+    },
+    {
+      "name": "Read Device",
+      "description": "Read information about a device, chain, or drum pad by ID or path."
+    },
+    {
+      "name": "Update Device",
+      "description": "Update device(s), chain(s), or drum pad(s)"
+    },
+    {
+      "name": "Playback Controls",
+      "description": "Control playback of the arrangement and session scenes/clips"
+    },
+    {
+      "name": "Selection Controls",
+      "description": "Read selection/view state (no args), or update it"
+    },
+    {
+      "name": "Delete Track/Scene/Clip/Device/Drum Pad",
+      "description": "Deletes objects"
+    },
+    {
+      "name": "Duplicate Track/Scene/Clip/Device",
+      "description": "Duplicate an object"
+    },
+    {
+      "name": "Project Notes",
+      "description": "Read or write project notes (if enabled in Producer Pal device)"
+    },
+    {
+      "name": "Read Samples",
+      "description": "List audio files from configured sample folder"
+    },
+    {
+      "name": "Read Browser",
+      "description": "List items from Ableton browser (library, presets, samples)"
+    },
+    {
+      "name": "Load Item",
+      "description": "Load browser item (preset, sample, device) into Live set"
+    },
+    {
+      "name": "Live API",
+      "description": "Provides direct, low-level access to the Live API for research, development, and debugging purposes."
+    }
+  ],
+  "compatibility": {
+    "platforms": [
+      "darwin",
+      "win32"
+    ],
+    "runtimes": {
+      "node": ">=18.0.0"
+    }
+  },
+  "user_config": {
+    "mcp_server_origin": {
+      "type": "string",
+      "title": "Ableton device URL",
+      "description": "URL for connecting to the Producer Pal Max for Live device (protocol://host:port). Use http://localhost:[port] for local connections or http://[IP]:[port] for network connections. The port number must match the port in the Max for Live device's advanced settings (default port is 3350). Restart this extension after changing the URL. Default: http://localhost:3350",
+      "required": false,
+      "sensitive": false,
+      "default": "http://localhost:3350"
+    },
+    "enable_logging": {
+      "type": "boolean",
+      "title": "Enable file logging",
+      "description": "Enable logging to files. When disabled, no log files are created. Logging is disabled by default to avoid unnecessary file system writes.",
+      "required": false,
+      "sensitive": false,
+      "default": false
+    },
+    "verbose_logging": {
+      "type": "boolean",
+      "title": "Enable verbose logging",
+      "description": "Enable detailed debug logging for troubleshooting. Shows request details, tool call arguments, and internal operations. Only has effect when file logging is enabled. Keep disabled for normal use.",
+      "required": false,
+      "sensitive": false,
+      "default": false
+    }
+  },
+  "keywords": [
+    "music",
+    "ableton live",
+    "ableton",
+    "production",
+    "producer",
+    "composition",
+    "composer",
+    "assistant",
+    "pal"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adamjmurray/producer-pal"
+  }
+}
