@@ -1,0 +1,837 @@
+commit acf6c99b528034804efbfecd7da1a689e3d46973
+Author:     Producer Pal Dev <dev@producer-pal.local>
+AuthorDate: Tue Feb 3 12:39:49 2026 +0100
+Commit:     Producer Pal Dev <dev@producer-pal.local>
+CommitDate: Tue Feb 3 12:39:49 2026 +0100
+
+    Add browser and library management capabilities
+    
+    Features:
+    - Add ppal-read-browser tool to browse Ableton library categories
+    - Add ppal-load-item tool to load presets, samples, and devices
+    - Add Browser, BrowserItem, and BrowserItemIterator type definitions
+    - Update limitations documentation to reflect new capabilities
+    - Add comprehensive unit tests for browser tools
+    
+    This implementation addresses the 'Cannot Load Library Content' and
+    'Cannot Access the Browser' limitations documented in todo.txt.
+    
+    Files added:
+    - src/tools/browser/read-browser.def.ts
+    - src/tools/browser/read-browser.ts
+    - src/tools/browser/read-browser.test.ts
+    - src/tools/browser/load-item.def.ts
+    - src/tools/browser/load-item.ts
+    - src/tools/browser/load-item.test.ts
+    - BROWSER_IMPLEMENTATION_SUMMARY.md
+    
+    Files modified:
+    - src/types/live-api.d.ts
+    - src/mcp-server/create-mcp-server.ts
+    - src/live-api-adapter/live-api-adapter.ts
+    - todo.txt
+    
+    Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+
+ .env.example                                       |    16 +
+ .gitattributes                                     |    21 +
+ .github/dependabot.yml                             |    18 +
+ .github/workflows/deploy-docs.yml                  |    63 +
+ .github/workflows/run-checks-and-tests.yml         |   464 +
+ .gitignore                                         |    41 +
+ .vscode/settings.json                              |    70 +
+ AGENTS.md                                          |   293 +
+ BROWSER_IMPLEMENTATION_SUMMARY.md                  |   251 +
+ CLAUDE.md                                          |     1 +
+ DEVELOPERS.md                                      |   132 +
+ GEMINI.md                                          |     1 +
+ LICENSE                                            |    20 +
+ README.md                                          |    52 +
+ SECURITY.md                                        |    51 +
+ assets/image/producer-pal-logo.af                  |   Bin 0 -> 33750 bytes
+ assets/image/producer-pal-logo.afdesign            |   Bin 0 -> 33258 bytes
+ assets/image/producer-pal-logo.svg                 |    28 +
+ assets/image/screenshot.png                        |   Bin 0 -> 996616 bytes
+ claude-desktop-extension/.mcpbignore               |     2 +
+ claude-desktop-extension/manifest.template.json    |    86 +
+ claude-desktop-extension/package-lock.json         |    15 +
+ claude-desktop-extension/package.json              |    11 +
+ claude-desktop-extension/producer-pal-logo.png     |   Bin 0 -> 20207 bytes
+ claude-desktop-extension/screenshot.png            |   Bin 0 -> 769125 bytes
+ config/.jscpd-e2e.json                             |     6 +
+ config/.jscpd-evals.json                           |     6 +
+ config/.jscpd-scripts.json                         |     6 +
+ config/.jscpd-tests.json                           |     7 +
+ config/.jscpd.json                                 |    17 +
+ config/.prettierignore                             |    15 +
+ config/eslint.config.js                            |   869 ++
+ config/playwright.docs.config.ts                   |    36 +
+ config/playwright.ui.config.ts                     |    22 +
+ config/prettier.config.mjs                         |     4 +
+ config/rollup-plugin-inline-chat-ui.mjs            |    62 +
+ config/rollup.config.mjs                           |   186 +
+ config/vite.config.ts                              |    89 +
+ config/vitest-minimal-reporter.mjs                 |    41 +
+ config/vitest.config.ts                            |   157 +
+ config/vitest.e2e.config.ts                        |    27 +
+ dev-docs/AI-Chat-Project-Instructions.md           |    38 +
+ dev-docs/Architecture.md                           |   258 +
+ dev-docs/BarBeat-Specification.md                  |   711 +
+ dev-docs/Chat-UI.md                                |   191 +
+ dev-docs/Coding-Standards.md                       |   121 +
+ dev-docs/Desktop-Extension.md                      |    68 +
+ dev-docs/Development-Tools.md                      |   246 +
+ dev-docs/Documentation-Site.md                     |   168 +
+ dev-docs/Evaluations.md                            |   150 +
+ dev-docs/Releasing.md                              |   304 +
+ dev-docs/modulations.md                            |   232 +
+ docs/.vitepress/config.ts                          |   143 +
+ docs/.vitepress/theme/get-started.css              |   203 +
+ docs/.vitepress/theme/index.ts                     |     4 +
+ docs/features.md                                   |   221 +
+ docs/guide.md                                      |    83 +
+ docs/guide/chat-ui.md                              |   141 +
+ docs/guide/device.md                               |    74 +
+ docs/guide/examples.md                             |   123 +
+ docs/index.md                                      |   167 +
+ docs/installation.md                               |    83 +
+ docs/installation/chat-ui-other-providers.md       |   125 +
+ docs/installation/chat-ui.md                       |    80 +
+ docs/installation/chatgpt-web.md                   |    76 +
+ docs/installation/choose-claude.md                 |    23 +
+ docs/installation/choose-gemini.md                 |    26 +
+ docs/installation/choose-local.md                  |    30 +
+ docs/installation/choose-multi.md                  |    31 +
+ docs/installation/choose-openai.md                 |    22 +
+ docs/installation/claude-code.md                   |    76 +
+ docs/installation/claude-desktop.md                |    77 +
+ docs/installation/claude-web.md                    |    67 +
+ docs/installation/cli.md                           |    27 +
+ docs/installation/codex-cli.md                     |    84 +
+ docs/installation/desktop-apps.md                  |    29 +
+ docs/installation/gemini-cli.md                    |   112 +
+ docs/installation/gemini.md                        |    68 +
+ docs/installation/lm-studio.md                     |   226 +
+ docs/installation/ollama.md                        |    97 +
+ docs/installation/other-mcp.md                     |   159 +
+ docs/installation/troubleshooting.md               |    71 +
+ docs/installation/upgrading.md                     |    60 +
+ docs/installation/web-apps.md                      |    26 +
+ docs/installation/web-tunnels.md                   |    51 +
+ docs/known-issues.md                               |    43 +
+ docs/public/BingSiteAuth.xml                       |     4 +
+ docs/public/CNAME                                  |     1 +
+ docs/public/chatgpt-enable-tools.png               |   Bin 0 -> 196727 bytes
+ docs/public/chatgpt-setup.png                      |   Bin 0 -> 191981 bytes
+ docs/public/chatgpt-setup2.png                     |   Bin 0 -> 238550 bytes
+ docs/public/chatgpt-success.png                    |   Bin 0 -> 328793 bytes
+ docs/public/chatgpt-tool-list.png                  |   Bin 0 -> 301364 bytes
+ docs/public/claude-code-permissions.png            |   Bin 0 -> 522209 bytes
+ docs/public/claude-code-success.png                |   Bin 0 -> 494377 bytes
+ docs/public/claude-code-tool-list.png              |   Bin 0 -> 580554 bytes
+ docs/public/claude-code-tool-list2.png             |   Bin 0 -> 485383 bytes
+ docs/public/claude-web-permissions.png             |   Bin 0 -> 150007 bytes
+ docs/public/claude-web-setup.png                   |   Bin 0 -> 272208 bytes
+ docs/public/claude-web-success.png                 |   Bin 0 -> 293396 bytes
+ docs/public/claude-web-tool-list.png               |   Bin 0 -> 219704 bytes
+ docs/public/cline-success.png                      |   Bin 0 -> 266610 bytes
+ docs/public/cloudflare-tunnel.png                  |   Bin 0 -> 465570 bytes
+ docs/public/codex-success.png                      |   Bin 0 -> 632887 bytes
+ docs/public/codex-tool-list.png                    |   Bin 0 -> 589473 bytes
+ docs/public/device-main-tab.png                    |   Bin 0 -> 72698 bytes
+ docs/public/device-notes-tab.png                   |   Bin 0 -> 63546 bytes
+ docs/public/device-setup-tab.png                   |   Bin 0 -> 78584 bytes
+ docs/public/gemini-success.png                     |   Bin 0 -> 543126 bytes
+ docs/public/gemini-tool-list.png                   |   Bin 0 -> 621396 bytes
+ docs/public/gemini-tool-permissions.png            |   Bin 0 -> 773359 bytes
+ docs/public/install-in-ableton.png                 |   Bin 0 -> 463962 bytes
+ docs/public/install-in-claude-2.png                |   Bin 0 -> 371317 bytes
+ docs/public/install-in-claude-first-extension.png  |   Bin 0 -> 353825 bytes
+ docs/public/install-in-claude.png                  |   Bin 0 -> 200387 bytes
+ docs/public/lm-studio-permissions.png              |   Bin 0 -> 205010 bytes
+ docs/public/lm-studio-server-settings.png          |   Bin 0 -> 105544 bytes
+ docs/public/lm-studio-success.png                  |   Bin 0 -> 302024 bytes
+ docs/public/lm-studio-tool-icon.png                |   Bin 0 -> 30513 bytes
+ docs/public/lm-studio-tool-list.png                |   Bin 0 -> 169110 bytes
+ docs/public/producer-pal-chat-conversation.png     |   Bin 0 -> 330860 bytes
+ .../producer-pal-chat-expandable-thoughts.png      |   Bin 0 -> 111757 bytes
+ .../producer-pal-chat-settings-appearance.png      |   Bin 0 -> 62228 bytes
+ .../public/producer-pal-chat-settings-behavior.png |   Bin 0 -> 88575 bytes
+ ...roducer-pal-chat-settings-connection-ollama.png |   Bin 0 -> 96891 bytes
+ ...settings-connection-open-router-other-model.png |   Bin 0 -> 109160 bytes
+ .../producer-pal-chat-settings-connection.png      |   Bin 0 -> 99367 bytes
+ .../producer-pal-chat-settings-custom-provider.png |   Bin 0 -> 122971 bytes
+ docs/public/producer-pal-chat-settings-tools.png   |   Bin 0 -> 169606 bytes
+ docs/public/producer-pal-chat.png                  |   Bin 0 -> 99773 bytes
+ docs/public/producer-pal-logo.png                  |   Bin 0 -> 20207 bytes
+ docs/public/producer-pal-logo.svg                  |    28 +
+ docs/public/producer-pal-permission.png            |   Bin 0 -> 72876 bytes
+ docs/public/producer-pal-startup-error.png         |   Bin 0 -> 259722 bytes
+ docs/public/screenshot.png                         |   Bin 0 -> 769125 bytes
+ docs/public/small-model-mode.png                   |   Bin 0 -> 78218 bytes
+ docs/public/tools-in-claude.png                    |   Bin 0 -> 199900 bytes
+ docs/roadmap.md                                    |   100 +
+ e2e/docs/README.md                                 |   126 +
+ e2e/docs/sitemap.spec.ts                           |   254 +
+ e2e/docs/tsconfig.json                             |    20 +
+ e2e/live-sets/e2e-test-set Project/Icon_           |     0
+ .../e2e-test-set Project/e2e-test-set.als          |   Bin 0 -> 111079 bytes
+ e2e/live-sets/e2e-test-set-spec.md                 |   400 +
+ e2e/live-sets/samples/drums/kick.aiff              |   Bin 0 -> 52208 bytes
+ e2e/live-sets/samples/drums/kick.aiff.asd          |   Bin 0 -> 4238 bytes
+ e2e/live-sets/samples/sample.aiff                  |   Bin 0 -> 52208 bytes
+ e2e/mcp/README.md                                  |    68 +
+ e2e/mcp/clip/ppal-create-clip.test.ts              |   344 +
+ e2e/mcp/clip/ppal-read-clip.test.ts                |   210 +
+ e2e/mcp/clip/ppal-update-clip.test.ts              |   393 +
+ e2e/mcp/control/ppal-playback.test.ts              |   167 +
+ e2e/mcp/control/ppal-select.test.ts                |   198 +
+ e2e/mcp/device/ppal-create-device.test.ts          |   223 +
+ e2e/mcp/device/ppal-read-device.test.ts            |   217 +
+ e2e/mcp/device/ppal-update-device.test.ts          |   171 +
+ e2e/mcp/live-set/ppal-read-live-set.test.ts        |   111 +
+ e2e/mcp/live-set/ppal-update-live-set.test.ts      |   163 +
+ e2e/mcp/mcp-test-helpers.ts                        |   205 +
+ e2e/mcp/operations/ppal-delete.test.ts             |   322 +
+ e2e/mcp/operations/ppal-duplicate.test.ts          |   394 +
+ e2e/mcp/operations/ppal-transform-clips.test.ts    |   206 +
+ e2e/mcp/samples/ppal-read-samples.test.ts          |    89 +
+ e2e/mcp/scene/ppal-create-scene.test.ts            |   169 +
+ e2e/mcp/scene/ppal-read-scene.test.ts              |   112 +
+ e2e/mcp/scene/ppal-update-scene.test.ts            |   166 +
+ e2e/mcp/track/ppal-create-track.test.ts            |   215 +
+ e2e/mcp/track/ppal-read-track.test.ts              |   213 +
+ e2e/mcp/track/ppal-update-track.test.ts            |   350 +
+ e2e/mcp/tsconfig.json                              |    25 +
+ e2e/mcp/workflow/ppal-connect.test.ts              |   172 +
+ e2e/mcp/workflow/ppal-memory.test.ts               |   130 +
+ e2e/webui/README.md                                |    59 +
+ e2e/webui/quick-connect.spec.ts                    |   176 +
+ e2e/webui/tsconfig.json                            |    25 +
+ evals/chat/anthropic.ts                            |   254 +
+ evals/chat/anthropic/config.ts                     |     5 +
+ evals/chat/anthropic/streaming.ts                  |   267 +
+ evals/chat/anthropic/tool-helpers.ts               |   133 +
+ evals/chat/gemini.ts                               |   372 +
+ evals/chat/gemini/config.ts                        |     3 +
+ evals/chat/index.ts                                |    94 +
+ evals/chat/openai/chat.ts                          |    30 +
+ evals/chat/openai/config.ts                        |     3 +
+ evals/chat/openai/index.ts                         |    20 +
+ evals/chat/openai/responses-streaming.ts           |   209 +
+ evals/chat/openai/responses.ts                     |   327 +
+ evals/chat/openrouter/chat.ts                      |    40 +
+ evals/chat/openrouter/config.ts                    |     3 +
+ evals/chat/openrouter/index.ts                     |    20 +
+ evals/chat/openrouter/responses-streaming.ts       |    94 +
+ evals/chat/openrouter/responses.ts                 |   379 +
+ evals/chat/shared/api/chat-api-base.ts             |   389 +
+ evals/chat/shared/api/chat-streaming.ts            |   232 +
+ evals/chat/shared/api/responses-api-base.ts        |    60 +
+ evals/chat/shared/api/responses-streaming.ts       |    76 +
+ evals/chat/shared/formatting.test.ts               |   362 +
+ evals/chat/shared/formatting.ts                    |   224 +
+ evals/chat/shared/mcp.ts                           |   119 +
+ evals/chat/shared/message-source.ts                |   143 +
+ evals/chat/shared/readline.ts                      |    83 +
+ evals/chat/shared/thinking-maps.ts                 |    23 +
+ evals/chat/shared/thought-processing.test.ts       |    84 +
+ evals/chat/shared/thought-processing.ts            |    46 +
+ evals/chat/shared/tool-execution.ts                |    90 +
+ evals/chat/shared/types.ts                         |   342 +
+ evals/eval/assertions/helpers.test.ts              |   380 +
+ evals/eval/assertions/helpers.ts                   |   178 +
+ evals/eval/assertions/index.ts                     |    17 +
+ evals/eval/assertions/llm-judge.ts                 |   276 +
+ evals/eval/assertions/response.test.ts             |   236 +
+ evals/eval/assertions/response.ts                  |    67 +
+ evals/eval/assertions/state.test.ts                |   272 +
+ evals/eval/assertions/state.ts                     |    63 +
+ evals/eval/assertions/tool-call.test.ts            |   286 +
+ evals/eval/assertions/tool-call.ts                 |    65 +
+ evals/eval/eval-session.ts                         |   225 +
+ evals/eval/helpers/anthropic-session.ts            |   146 +
+ evals/eval/helpers/correctness-score.test.ts       |   228 +
+ evals/eval/helpers/correctness-score.ts            |    81 +
+ evals/eval/helpers/eval-session-base.ts            |    20 +
+ evals/eval/helpers/judge-response-parser.test.ts   |   229 +
+ evals/eval/helpers/judge-response-parser.ts        |   105 +
+ evals/eval/helpers/judge/anthropic-judge.ts        |    72 +
+ evals/eval/helpers/judge/gemini-judge.ts           |    66 +
+ evals/eval/helpers/judge/judge-output.ts           |    57 +
+ evals/eval/helpers/judge/openai-judge.ts           |    74 +
+ evals/eval/helpers/openai-session.ts               |   246 +
+ evals/eval/helpers/output-config.test.ts           |    40 +
+ evals/eval/helpers/output-config.ts                |    23 +
+ evals/eval/helpers/report-table.ts                 |   187 +
+ evals/eval/index.ts                                |   308 +
+ evals/eval/load-scenarios.ts                       |    71 +
+ evals/eval/open-live-set.ts                        |   206 +
+ evals/eval/run-scenario.ts                         |   296 +
+ evals/eval/scenario-defs/connect-to-ableton.ts     |    56 +
+ evals/eval/scenario-defs/create-and-edit-clip.ts   |    52 +
+ .../eval/scenario-defs/duplicate-and-transform.ts  |    44 +
+ evals/eval/scenario-defs/index.ts                  |    13 +
+ evals/eval/scenario-defs/project-notes-workflow.ts |    49 +
+ .../scenario-defs/track-and-device-workflow.ts     |    52 +
+ evals/eval/types.ts                                |   158 +
+ evals/live-sets/.gitkeep                           |     5 +
+ evals/live-sets/basic-midi-4-track Project/Icon_   |     0
+ .../basic-midi-4-track.als                         |   Bin 0 -> 380919 bytes
+ evals/live-sets/samples/drums/kick.aiff            |   Bin 0 -> 52208 bytes
+ evals/live-sets/samples/sample.aiff                |   Bin 0 -> 52208 bytes
+ evals/shared/config.ts                             |    50 +
+ evals/shared/gemini-streaming.ts                   |   138 +
+ evals/shared/gemini-types.ts                       |    32 +
+ evals/shared/parse-model-arg.ts                    |    89 +
+ evals/shared/provider-configs.ts                   |    70 +
+ evals/tsconfig.json                                |    23 +
+ licenses/README.md                                 |     5 +
+ licenses/express-license                           |    24 +
+ licenses/google-genai-license                      |   203 +
+ licenses/marked-license                            |    46 +
+ licenses/mcp-typescript-sdk-license                |    22 +
+ licenses/preact-license                            |    23 +
+ licenses/tailwindcss-license                       |    23 +
+ licenses/zod-license                               |    22 +
+ max-for-live-device/.amxd_devpath                  |     0
+ max-for-live-device/Producer_Pal.amxd              |   Bin 0 -> 42100 bytes
+ max-for-live-device/icon.png                       |   Bin 0 -> 17117 bytes
+ max-for-live-device/producer-pal-logo.svg          |    28 +
+ max-for-live-device/server-status.maxpat           |   460 +
+ max-for-live-device/tab-advanced.maxpat            |  2077 +++
+ max-for-live-device/tab-main.maxpat                |   508 +
+ max-for-live-device/tab-notes.maxpat               |   632 +
+ netlify.toml                                       |    15 +
+ npm/README.md                                      |   187 +
+ npm/package-lock.json                              |    19 +
+ npm/package.json                                   |    37 +
+ package-lock.json                                  | 14155 +++++++++++++++++++
+ package.json                                       |   139 +
+ .../build-claude-desktop-extension.ts              |    86 +
+ scripts/build-and-release/bump-version.ts          |    66 +
+ .../build-and-release/generate-knowledge-base.ts   |    56 +
+ scripts/build-and-release/get-thresholds.ts        |   134 +
+ scripts/build-and-release/helpers/kb-config.ts     |   103 +
+ .../helpers/kb-file-operations.ts                  |    92 +
+ scripts/build-and-release/helpers/kb-processors.ts |    76 +
+ scripts/build-and-release/prepare-release.ts       |    73 +
+ .../build-and-release/validate-typescript-only.ts  |    86 +
+ scripts/chat                                       |     5 +
+ scripts/eval                                       |    11 +
+ scripts/ppal-client.ts                             |   275 +
+ scripts/test/test-claude-desktop-extension.ts      |   329 +
+ scripts/tsconfig.json                              |    23 +
+ src/index.d.ts                                     |    80 +
+ src/live-api-adapter/live-api-adapter.ts           |   314 +
+ .../live-api-extensions-basic.test.ts              |   322 +
+ .../live-api-extensions-color.test.ts              |   108 +
+ .../live-api-extensions-path-indices.test.ts       |   445 +
+ .../live-api-extensions-setters.test.ts            |   191 +
+ src/live-api-adapter/live-api-extensions.test.ts   |   153 +
+ src/live-api-adapter/live-api-extensions.ts        |   318 +
+ src/live-api-adapter/live-api-path-utils.ts        |    33 +
+ src/mcp-server/create-express-app.test.ts          |   764 +
+ src/mcp-server/create-express-app.ts               |   241 +
+ src/mcp-server/create-mcp-server.ts                |   101 +
+ src/mcp-server/max-api-adapter.test.ts             |   428 +
+ src/mcp-server/max-api-adapter.ts                  |   198 +
+ src/mcp-server/mcp-server.ts                       |    55 +
+ src/mcp-server/node-for-max-logger.test.ts         |   109 +
+ src/mcp-server/node-for-max-logger.ts              |    28 +
+ .../barbeat/barbeat-apply-v0-deletions.test.ts     |   177 +
+ src/notation/barbeat/barbeat-apply-v0-deletions.ts |    27 +
+ src/notation/barbeat/barbeat-config.ts             |     6 +
+ .../barbeat/barbeat-format-notation.test.ts        |   264 +
+ src/notation/barbeat/barbeat-format-notation.ts    |   307 +
+ .../barbeat/interpreter/barbeat-interpreter.ts     |   360 +
+ .../helpers/barbeat-interpreter-buffer-helpers.ts  |   178 +
+ .../helpers/barbeat-interpreter-copy-helpers.ts    |   473 +
+ .../helpers/barbeat-interpreter-helpers.test.ts    |   350 +
+ .../helpers/barbeat-interpreter-pitch-helpers.ts   |   260 +
+ .../helpers/barbeat-interpreter-test-helpers.ts    |   151 +
+ .../tests/barbeat-interpreter-beat-lists.test.ts   |   108 +
+ .../tests/barbeat-interpreter-comments.test.ts     |   116 +
+ .../barbeat-interpreter-copy-advanced.test.ts      |   426 +
+ .../tests/barbeat-interpreter-copy-range.test.ts   |    73 +
+ .../tests/barbeat-interpreter-copy.test.ts         |   203 +
+ .../tests/barbeat-interpreter-core.test.ts         |   361 +
+ .../tests/barbeat-interpreter-patterns.test.ts     |   344 +
+ .../tests/barbeat-interpreter-timesig.test.ts      |    69 +
+ .../tests/barbeat-interpreter-timing.test.ts       |   296 +
+ src/notation/barbeat/parser/barbeat-grammar.peggy  |   196 +
+ .../barbeat/parser/barbeat-parser-bar-copy.test.ts |    44 +
+ .../barbeat/parser/barbeat-parser-basic.test.ts    |   123 +
+ .../parser/barbeat-parser-beat-lists.test.ts       |   163 +
+ .../barbeat/parser/barbeat-parser-duration.test.ts |   140 +
+ .../parser/barbeat-parser-edge-cases.test.ts       |    75 +
+ .../barbeat/parser/barbeat-parser-features.test.ts |   171 +
+ .../barbeat/parser/barbeat-parser-time.test.ts     |   140 +
+ src/notation/barbeat/parser/barbeat-parser.ts      |     6 +
+ .../barbeat/parser/generated-barbeat-parser.d.ts   |    49 +
+ .../barbeat/parser/generated-barbeat-parser.js     |  2058 +++
+ .../barbeat/time/barbeat-time-basic.test.ts        |   441 +
+ .../barbeat/time/barbeat-time-durations.test.ts    |   251 +
+ .../time/barbeat-time-musical-beats.test.ts        |   160 +
+ .../time/barbeat-time-parse-beats-per-bar.test.ts  |   109 +
+ src/notation/barbeat/time/barbeat-time.ts          |   329 +
+ .../modulation/modulation-evaluator-helpers.ts     |   345 +
+ src/notation/modulation/modulation-evaluator.ts    |   259 +
+ src/notation/modulation/modulation-frequency.ts    |    40 +
+ src/notation/modulation/modulation-functions.ts    |   286 +
+ src/notation/modulation/modulation-waveforms.ts    |    94 +
+ .../parser/generated-modulation-parser.d.ts        |    69 +
+ .../parser/generated-modulation-parser.js          |  2530 ++++
+ .../modulation/parser/modulation-grammar.peggy     |   227 +
+ .../modulation/parser/modulation-parser.ts         |     6 +
+ .../tests/modulation-branch-coverage.test.ts       |   196 +
+ .../tests/modulation-evaluator-apply.test.ts       |   717 +
+ .../tests/modulation-evaluator-basic.test.ts       |   588 +
+ .../tests/modulation-evaluator-errors.test.ts      |   259 +
+ .../tests/modulation-evaluator-filtering.test.ts   |   560 +
+ .../modulation/tests/modulation-frequency.test.ts  |   211 +
+ .../tests/modulation-parser-expressions.test.ts    |   427 +
+ .../modulation/tests/modulation-parser.test.ts     |   406 +
+ .../modulation/tests/modulation-waveforms.test.ts  |   311 +
+ src/notation/peggy-parser-types.d.ts               |    29 +
+ src/notation/types.ts                              |    19 +
+ src/polyfills/es2023-array.test.ts                 |   120 +
+ src/polyfills/es2023-array.ts                      |   103 +
+ src/portal/file-logger.ts                          |    90 +
+ src/portal/producer-pal-portal.test.ts             |    34 +
+ src/portal/producer-pal-portal.ts                  |    32 +
+ src/portal/stdio-http-bridge.test.ts               |   637 +
+ src/portal/stdio-http-bridge.ts                    |   321 +
+ src/shared/compact-serializer.ts                   |    54 +
+ src/shared/error-utils.test.ts                     |    18 +
+ src/shared/error-utils.ts                          |     9 +
+ src/shared/mcp-response-utils.ts                   |    46 +
+ src/shared/pitch.ts                                |   224 +
+ src/shared/silent-wav-generator.ts                 |    73 +
+ src/shared/tests/compact-serializer.test.ts        |   278 +
+ src/shared/tests/mcp-response-utils.test.ts        |   133 +
+ src/shared/tests/pitch.test.ts                     |   434 +
+ src/shared/tests/silent-wav-generator.test.ts      |    74 +
+ src/shared/tests/v8-max-console.test.ts            |   220 +
+ src/shared/tests/v8-sleep.test.ts                  |    79 +
+ src/shared/v8-max-console.ts                       |   103 +
+ src/shared/v8-sleep.ts                             |    45 +
+ src/shared/version.ts                              |     3 +
+ src/skills/basic.test.ts                           |    78 +
+ src/skills/basic.ts                                |    88 +
+ src/skills/standard.ts                             |   242 +
+ src/test/blank-line-requirements.test.ts           |   139 +
+ src/test/expect-extensions.test.ts                 |   587 +
+ src/test/expect-extensions.ts                      |   246 +
+ src/test/file-naming-conventions.test.ts           |   125 +
+ src/test/folder-size-limits.test.ts                |    23 +
+ src/test/helpers/cue-point-mock-helpers.ts         |   119 +
+ src/test/helpers/meta-test-helpers.ts              |   236 +
+ src/test/license-embedded.test.ts                  |    46 +
+ src/test/lint-suppression-limits.test.ts           |    78 +
+ src/test/mocks/mcp-test-types.ts                   |    52 +
+ src/test/mocks/mock-chat-ui-html.ts                |     5 +
+ src/test/mocks/mock-folder.ts                      |    94 +
+ src/test/mocks/mock-live-api-property-helpers.ts   |   215 +
+ src/test/mocks/mock-live-api.ts                    |   337 +
+ src/test/mocks/mock-task.ts                        |    20 +
+ src/test/mocks/routing-mock-helpers.ts             |    82 +
+ src/test/test-data-builders.ts                     |    32 +
+ src/test/test-setup.ts                             |   111 +
+ src/test/vitest-matchers.d.ts                      |    27 +
+ src/tools/browser/load-item.def.ts                 |    22 +
+ src/tools/browser/load-item.test.ts                |   244 +
+ src/tools/browser/load-item.ts                     |   180 +
+ src/tools/browser/read-browser.def.ts              |    43 +
+ src/tools/browser/read-browser.test.ts             |   198 +
+ src/tools/browser/read-browser.ts                  |   198 +
+ .../clip/arrangement/arrangement-operations.ts     |    77 +
+ .../helpers/arrangement-operations-helpers.test.ts |   287 +
+ .../helpers/arrangement-operations-helpers.ts      |   410 +
+ .../helpers/arrangement-operations-test-helpers.ts |   116 +
+ .../helpers/arrangement-unlooped-helpers.ts        |   165 +
+ src/tools/clip/create/create-clip-advanced.test.ts |   297 +
+ .../clip/create/create-clip-arrangement.test.ts    |   141 +
+ src/tools/clip/create/create-clip-audio.test.ts    |   633 +
+ src/tools/clip/create/create-clip-basic.test.ts    |   459 +
+ src/tools/clip/create/create-clip-session.test.ts  |   359 +
+ src/tools/clip/create/create-clip-test-helpers.ts  |    72 +
+ src/tools/clip/create/create-clip.def.ts           |    99 +
+ src/tools/clip/create/create-clip.ts               |   370 +
+ .../create/helpers/create-clip-audio-helpers.ts    |    82 +
+ .../clip/create/helpers/create-clip-helpers.ts     |   336 +
+ .../create/helpers/create-clip-result-helpers.ts   |   160 +
+ .../helpers/create-clip-validation-helpers.ts      |   134 +
+ src/tools/clip/helpers/clip-result-helpers.test.ts |   165 +
+ src/tools/clip/helpers/clip-result-helpers.ts      |   164 +
+ src/tools/clip/read/helpers/read-clip-helpers.ts   |   141 +
+ src/tools/clip/read/read-clip.def.ts               |    33 +
+ src/tools/clip/read/read-clip.ts                   |   394 +
+ src/tools/clip/read/tests/read-clip-core.test.ts   |   397 +
+ .../clip/read/tests/read-clip-edge-cases.test.ts   |   397 +
+ .../clip/read/tests/read-clip-test-helpers.ts      |   206 +
+ .../clip/read/tests/read-clip-warp-markers.test.ts |   146 +
+ .../update-clip-arrangement-helpers.test.ts        |   178 +
+ .../helpers/update-clip-arrangement-helpers.ts     |   153 +
+ .../update/helpers/update-clip-audio-helpers.ts    |   332 +
+ .../clip/update/helpers/update-clip-helpers.ts     |   423 +
+ .../helpers/update-clip-quantization-helpers.ts    |    88 +
+ .../update/helpers/update-clip-test-helpers.ts     |   479 +
+ .../helpers/update-clip-timing-helpers.test.ts     |    88 +
+ .../update/helpers/update-clip-timing-helpers.ts   |   170 +
+ .../update-clip-arrangement-hidden-content.test.ts |    45 +
+ .../update-clip-arrangement-shortening.test.ts     |   368 +
+ .../update-clip-arrangement-tiling.test.ts         |   392 +
+ .../update-clip-audio-arrangement-advanced.test.ts |   366 +
+ .../update-clip-audio-arrangement-basic.test.ts    |    66 +
+ .../update/tests/update-clip-audio-helpers.test.ts |   423 +
+ .../clip/update/tests/update-clip-basic.test.ts    |   409 +
+ .../update/tests/update-clip-boundaries.test.ts    |   216 +
+ .../update/tests/update-clip-note-advanced.test.ts |   394 +
+ .../update/tests/update-clip-note-modes.test.ts    |   183 +
+ .../update/tests/update-clip-properties.test.ts    |   297 +
+ .../update/tests/update-clip-quantization.test.ts  |   209 +
+ .../update-clip-unlooped-hidden-basic.test.ts      |   247 +
+ src/tools/clip/update/update-clip.def.ts           |   170 +
+ src/tools/clip/update/update-clip.ts               |   189 +
+ src/tools/constants.ts                             |   198 +
+ src/tools/control/playback-helpers.ts              |   339 +
+ src/tools/control/playback.def.ts                  |    97 +
+ src/tools/control/playback.ts                      |   463 +
+ src/tools/control/raw-live-api.def.ts              |    73 +
+ src/tools/control/raw-live-api.ts                  |   256 +
+ src/tools/control/select-helpers.ts                |   354 +
+ src/tools/control/select.def.ts                    |    53 +
+ src/tools/control/select.ts                        |   305 +
+ src/tools/control/tests/playback-basic.test.ts     |   673 +
+ src/tools/control/tests/playback-features.test.ts  |   283 +
+ src/tools/control/tests/playback-locator.test.ts   |   315 +
+ src/tools/control/tests/playback-test-helpers.ts   |   143 +
+ src/tools/control/tests/raw-live-api.test.ts       |   473 +
+ src/tools/control/tests/select-advanced.test.ts    |   704 +
+ src/tools/control/tests/select-basic.test.ts       |   610 +
+ src/tools/control/tests/select-test-helpers.ts     |   260 +
+ src/tools/device/create/create-device.def.ts       |    24 +
+ src/tools/device/create/create-device.test.ts      |   471 +
+ src/tools/device/create/create-device.ts           |   112 +
+ src/tools/device/read-device-drum-pad-path.test.ts |   256 +
+ src/tools/device/read-device-param-search.test.ts  |   230 +
+ src/tools/device/read-device-params.test.ts        |   240 +
+ src/tools/device/read-device-path.test.ts          |   272 +
+ src/tools/device/read-device-test-helpers.ts       |   430 +
+ src/tools/device/read-device.def.ts                |    49 +
+ src/tools/device/read-device.test.ts               |   214 +
+ src/tools/device/read-device.ts                    |   365 +
+ .../device/update/update-device-chains.test.ts     |   364 +
+ .../update/update-device-division-params.test.ts   |   117 +
+ .../update/update-device-drum-chain-move.test.ts   |   149 +
+ src/tools/device/update/update-device-helpers.ts   |   489 +
+ .../update/update-device-macro-variation.test.ts   |   285 +
+ src/tools/device/update/update-device-path.test.ts |   605 +
+ .../device/update/update-device-type-helpers.ts    |    55 +
+ .../device/update/update-device-wrap-helpers.ts    |   337 +
+ .../update/update-device-wrap-in-rack.test.ts      |   633 +
+ src/tools/device/update/update-device.def.ts       |   104 +
+ src/tools/device/update/update-device.test.ts      |   710 +
+ src/tools/device/update/update-device.ts           |   453 +
+ .../helpers/update-live-set-helpers.test.ts        |   386 +
+ .../live-set/helpers/update-live-set-helpers.ts    |   229 +
+ .../helpers/update-live-set-locator-helpers.ts     |   277 +
+ src/tools/live-set/read-live-set.def.ts            |    53 +
+ src/tools/live-set/read-live-set.ts                |   156 +
+ .../live-set/tests/read-live-set-basic.test.ts     |   532 +
+ .../live-set/tests/read-live-set-clips.test.ts     |   535 +
+ .../live-set/tests/read-live-set-inclusion.test.ts |   243 +
+ .../live-set/tests/read-live-set-locators.test.ts  |   162 +
+ .../live-set/tests/read-live-set-mixer.test.ts     |   350 +
+ .../live-set/tests/read-live-set-routing.test.ts   |    59 +
+ .../tests/read-live-set-track-types.test.ts        |   257 +
+ .../update-live-set-locator-operations.test.ts     |   362 +
+ .../live-set/tests/update-live-set-test-helpers.ts |   132 +
+ src/tools/live-set/tests/update-live-set.test.ts   |   536 +
+ src/tools/live-set/update-live-set.def.ts          |    51 +
+ src/tools/live-set/update-live-set.ts              |   276 +
+ .../operations/delete/delete-device-errors.test.ts |   131 +
+ src/tools/operations/delete/delete-device.test.ts  |   449 +
+ src/tools/operations/delete/delete-test-helpers.ts |   210 +
+ src/tools/operations/delete/delete.def.ts          |    28 +
+ src/tools/operations/delete/delete.test.ts         |   547 +
+ src/tools/operations/delete/delete.ts              |   354 +
+ src/tools/operations/duplicate/duplicate.def.ts    |    95 +
+ src/tools/operations/duplicate/duplicate.ts        |   431 +
+ .../helpers/duplicate-clip-position-helpers.ts     |   140 +
+ .../duplicate/helpers/duplicate-device-helpers.ts  |   191 +
+ .../duplicate/helpers/duplicate-helpers.test.ts    |   682 +
+ .../duplicate/helpers/duplicate-helpers.ts         |   416 +
+ .../helpers/duplicate-misc-helpers.test.ts         |   104 +
+ .../duplicate/helpers/duplicate-misc-helpers.ts    |    71 +
+ .../duplicate/helpers/duplicate-routing-helpers.ts |   216 +
+ .../duplicate/helpers/duplicate-test-helpers.ts    |   399 +
+ .../helpers/duplicate-track-scene-helpers.test.ts  |   737 +
+ .../helpers/duplicate-track-scene-helpers.ts       |   409 +
+ .../helpers/duplicate-validation-helpers.ts        |   210 +
+ .../tests/duplicate-advanced-features.test.ts      |   379 +
+ .../tests/duplicate-arrangement-length.test.ts     |   332 +
+ .../duplicate/tests/duplicate-clip.test.ts         |   282 +
+ .../duplicate/tests/duplicate-device.test.ts       |   245 +
+ .../duplicate/tests/duplicate-locator.test.ts      |   266 +
+ .../tests/duplicate-mocks-test-helpers.ts          |    22 +
+ .../duplicate/tests/duplicate-scene.test.ts        |   469 +
+ .../duplicate/tests/duplicate-track.test.ts        |   417 +
+ .../duplicate/tests/duplicate-validation.test.ts   |   207 +
+ src/tools/operations/duplicate/tests/setup.ts      |    50 +
+ .../helpers/transform-clips-helpers.test.ts        |   336 +
+ .../helpers/transform-clips-helpers.ts             |   158 +
+ .../helpers/transform-clips-params-helpers.ts      |   233 +
+ .../helpers/transform-clips-params.test.ts         |   320 +
+ .../helpers/transform-clips-params.ts              |   298 +
+ .../transform-clips-shuffling-helpers.test.ts      |   325 +
+ .../helpers/transform-clips-shuffling-helpers.ts   |   207 +
+ .../helpers/transform-clips-slicing-helpers.ts     |   348 +
+ .../transform-clips-arrangement-test-helpers.ts    |   160 +
+ .../tests/transform-clips-arrangement.test.ts      |   102 +
+ .../tests/transform-clips-basic.test.ts            |    51 +
+ .../tests/transform-clips-modifications.test.ts    |   280 +
+ .../tests/transform-clips-slice-shuffle.test.ts    |   249 +
+ .../tests/transform-clips-slicing-test-helpers.ts  |   429 +
+ .../tests/transform-clips-slicing-unlooped.test.ts |   265 +
+ .../tests/transform-clips-slicing.test.ts          |   418 +
+ .../tests/transform-clips-test-helpers.ts          |   106 +
+ .../transform-clips/transform-clips.def.ts         |   141 +
+ .../operations/transform-clips/transform-clips.ts  |   193 +
+ src/tools/samples/read-samples.def.ts              |    17 +
+ src/tools/samples/read-samples.test.ts             |   374 +
+ src/tools/samples/read-samples.ts                  |   115 +
+ src/tools/scene/capture-scene.test.ts              |   146 +
+ src/tools/scene/capture-scene.ts                   |    80 +
+ src/tools/scene/create-scene.def.ts                |    38 +
+ src/tools/scene/create-scene.test.ts               |   506 +
+ src/tools/scene/create-scene.ts                    |   247 +
+ src/tools/scene/read-scene.def.ts                  |    22 +
+ src/tools/scene/read-scene.test.ts                 |   397 +
+ src/tools/scene/read-scene.ts                      |   129 +
+ src/tools/scene/scene-helpers.ts                   |    38 +
+ src/tools/scene/update-scene.def.ts                |    18 +
+ src/tools/scene/update-scene.test.ts               |   330 +
+ src/tools/scene/update-scene.ts                    |    74 +
+ .../arrangement-tiling-advanced.test.ts            |   390 +
+ .../arrangement/arrangement-tiling-basic.test.ts   |   396 +
+ src/tools/shared/arrangement/arrangement-tiling.ts |   447 +
+ .../arrangement/get-host-track-index.test.ts       |    61 +
+ .../shared/arrangement/get-host-track-index.ts     |    13 +
+ src/tools/shared/clip-marker-helpers.ts            |    43 +
+ src/tools/shared/color-verification-helpers.ts     |    33 +
+ src/tools/shared/device/device-reader.test.ts      |   474 +
+ src/tools/shared/device/device-reader.ts           |   296 +
+ .../helpers/device-chain-creation-helpers.ts       |   213 +
+ .../device/helpers/device-display-helpers.test.ts  |   562 +
+ .../device/helpers/device-display-helpers.ts       |   319 +
+ .../helpers/device-reader-drum-helpers.test.ts     |   249 +
+ .../device/helpers/device-reader-drum-helpers.ts   |   296 +
+ .../device/helpers/device-reader-helpers.test.ts   |   756 +
+ .../shared/device/helpers/device-reader-helpers.ts |   314 +
+ .../shared/device/helpers/device-state-helpers.ts  |   159 +
+ .../helpers/path/device-drumpad-navigation.ts      |   186 +
+ .../device/helpers/path/device-path-builders.ts    |    85 +
+ .../path/device-path-helpers-drumpad.test.ts       |   635 +
+ .../helpers/path/device-path-helpers.test.ts       |   663 +
+ .../device/helpers/path/device-path-helpers.ts     |   201 +
+ .../device/helpers/path/device-path-to-live-api.ts |   173 +
+ src/tools/shared/gain-lookup-table.ts              |   524 +
+ src/tools/shared/gain-utils.ts                     |   136 +
+ src/tools/shared/live-set-helpers.ts               |    17 +
+ src/tools/shared/locator/locator-helpers.test.ts   |   114 +
+ src/tools/shared/locator/locator-helpers.ts        |   182 +
+ src/tools/shared/tests/clip-marker-helpers.test.ts |   120 +
+ .../tests/color-verification-helpers.test.ts       |   145 +
+ src/tools/shared/tests/gain-utils.test.ts          |   189 +
+ src/tools/shared/tests/utils.test.ts               |   734 +
+ .../shared/tool-framework/define-tool.test.ts      |   402 +
+ src/tools/shared/tool-framework/define-tool.ts     |   104 +
+ .../shared/tool-framework/filter-schema.test.ts    |   161 +
+ src/tools/shared/tool-framework/filter-schema.ts   |    37 +
+ .../shared/tool-framework/include-params.test.ts   |   287 +
+ src/tools/shared/tool-framework/include-params.ts  |   362 +
+ src/tools/shared/utils.ts                          |   192 +
+ src/tools/shared/validation/id-validation.test.ts  |   273 +
+ src/tools/shared/validation/id-validation.ts       |   133 +
+ .../shared/validation/position-parsing.test.ts     |    57 +
+ src/tools/shared/validation/position-parsing.ts    |    32 +
+ src/tools/track/create/create-track.def.ts         |    26 +
+ src/tools/track/create/create-track.test.ts        |   686 +
+ src/tools/track/create/create-track.ts             |   267 +
+ src/tools/track/helpers/track-routing-helpers.ts   |   193 +
+ .../read/helpers/read-track-device-helpers.ts      |    84 +
+ .../helpers/read-track-drum-rack-mock-helpers.ts   |    84 +
+ src/tools/track/read/helpers/read-track-helpers.ts |   448 +
+ .../track/read/helpers/read-track-test-helpers.ts  |   391 +
+ src/tools/track/read/read-track-basic.test.ts      |   453 +
+ .../track/read/read-track-devices-racks.test.ts    |   321 +
+ src/tools/track/read/read-track-devices.test.ts    |   453 +
+ .../track/read/read-track-drums-advanced.test.ts   |   313 +
+ .../track/read/read-track-drums-chains.test.ts     |   477 +
+ src/tools/track/read/read-track-mixer.test.ts      |   429 +
+ src/tools/track/read/read-track-options.test.ts    |   534 +
+ src/tools/track/read/read-track-parameters.test.ts |   451 +
+ src/tools/track/read/read-track-routing.test.ts    |   215 +
+ src/tools/track/read/read-track.def.ts             |    60 +
+ src/tools/track/read/read-track.ts                 |   367 +
+ src/tools/track/update/update-track-mixer.test.ts  |   419 +
+ src/tools/track/update/update-track-send.test.ts   |   329 +
+ src/tools/track/update/update-track.def.ts         |    98 +
+ src/tools/track/update/update-track.test.ts        |   570 +
+ src/tools/track/update/update-track.ts             |   432 +
+ src/tools/workflow/connect-context.test.ts         |   170 +
+ src/tools/workflow/connect-core.test.ts            |   357 +
+ src/tools/workflow/connect-test-helpers.ts         |    68 +
+ src/tools/workflow/connect.def.ts                  |    14 +
+ src/tools/workflow/connect.ts                      |   130 +
+ src/tools/workflow/memory.def.ts                   |    20 +
+ src/tools/workflow/memory.test.ts                  |   141 +
+ src/tools/workflow/memory.ts                       |    76 +
+ src/tsconfig.json                                  |    29 +
+ src/types/live-api.d.ts                            |   215 +
+ src/types/max-api.d.ts                             |    83 +
+ src/types/max-globals.d.ts                         |    93 +
+ src/types/virtual-modules.d.ts                     |    10 +
+ todo.txt                                           |    29 +
+ webui/index.html                                   |    30 +
+ webui/src/assets/producer-pal-logo.svg             |    28 +
+ webui/src/chat/gemini/client-helpers.test.ts       |   238 +
+ webui/src/chat/gemini/client-helpers.ts            |   185 +
+ webui/src/chat/gemini/client.test.ts               |   580 +
+ webui/src/chat/gemini/client.ts                    |   295 +
+ webui/src/chat/gemini/formatter.test.ts            |    82 +
+ webui/src/chat/gemini/formatter.ts                 |   340 +
+ webui/src/chat/gemini/message-overrides.test.ts    |   117 +
+ webui/src/chat/gemini/message-overrides.ts         |    70 +
+ .../gemini/test-cases/formatter/basic-test-case.ts |   153 +
+ .../test-cases/formatter/error-test-cases.ts       |    58 +
+ .../history-ending-in-thought-test-case.ts         |    44 +
+ .../formatter/parallel-tool-calls-test-case.ts     |   140 +
+ .../formatter/thought-signatures-test-case.ts      |    91 +
+ .../formatter/tool-call-error-constants.ts         |     7 +
+ .../formatter/tool-call-error-test-case.ts         |   335 +
+ webui/src/chat/helpers/formatter-helpers.ts        |    20 +
+ webui/src/chat/helpers/mcp-client-helpers.ts       |    49 +
+ webui/src/chat/openai/client.ts                    |   473 +
+ webui/src/chat/openai/formatter.ts                 |   260 +
+ webui/src/chat/openai/history-converter.ts         |   209 +
+ webui/src/chat/openai/message-overrides.ts         |    85 +
+ webui/src/chat/openai/reasoning-helpers.ts         |   106 +
+ webui/src/chat/openai/responses-client.ts          |   242 +
+ webui/src/chat/openai/responses-formatter.ts       |   220 +
+ webui/src/chat/openai/responses-streaming.ts       |   260 +
+ .../src/chat/openai/tests/client-reasoning.test.ts |   150 +
+ .../chat/openai/tests/client-sendmessage.test.ts   |   510 +
+ webui/src/chat/openai/tests/client.test.ts         |   477 +
+ webui/src/chat/openai/tests/formatter.test.ts      |   197 +
+ .../chat/openai/tests/history-converter.test.ts    |   313 +
+ .../chat/openai/tests/message-overrides.test.ts    |   150 +
+ .../chat/openai/tests/reasoning-helpers.test.ts    |   364 +
+ .../src/chat/openai/tests/responses-client.test.ts |   429 +
+ .../chat/openai/tests/responses-formatter.test.ts  |   377 +
+ .../chat/openai/tests/responses-streaming.test.ts  |   338 +
+ .../tests/test-cases/formatter/basic-test-case.ts  |    98 +
+ .../test-cases/formatter/empty-tool-call-args.ts   |    53 +
+ webui/src/components/App.test.tsx                  |   428 +
+ webui/src/components/App.tsx                       |   215 +
+ webui/src/components/chat/ChatScreen.test.tsx      |   320 +
+ webui/src/components/chat/ChatScreen.tsx           |   167 +
+ webui/src/components/chat/ChatStart.test.tsx       |   126 +
+ webui/src/components/chat/ChatStart.tsx            |    60 +
+ webui/src/components/chat/MessageList.test.tsx     |   272 +
+ webui/src/components/chat/MessageList.tsx          |   129 +
+ .../chat/assistant/AssistantError.test.tsx         |    67 +
+ .../components/chat/assistant/AssistantError.tsx   |    18 +
+ .../chat/assistant/AssistantMessage.test.tsx       |   236 +
+ .../components/chat/assistant/AssistantMessage.tsx |    54 +
+ .../chat/assistant/AssistantText.test.tsx          |   101 +
+ .../components/chat/assistant/AssistantText.tsx    |    22 +
+ .../chat/assistant/AssistantThought.test.tsx       |   170 +
+ .../components/chat/assistant/AssistantThought.tsx |    49 +
+ .../chat/assistant/AssistantToolCall.test.tsx      |   244 +
+ .../chat/assistant/AssistantToolCall.tsx           |    81 +
+ .../chat/controls/ActivityIndicator.test.tsx       |    61 +
+ .../components/chat/controls/ActivityIndicator.tsx |   126 +
+ .../components/chat/controls/ChatHeader.test.tsx   |   347 +
+ webui/src/components/chat/controls/ChatHeader.tsx  |   129 +
+ .../components/chat/controls/ChatInput.test.tsx    |   287 +
+ webui/src/components/chat/controls/ChatInput.tsx   |   115 +
+ .../chat/controls/MessageSettingsToolbar.test.tsx  |   135 +
+ .../chat/controls/MessageSettingsToolbar.tsx       |   214 +
+ .../chat/controls/RateLimitIndicator.test.tsx      |   148 +
+ .../chat/controls/RateLimitIndicator.tsx           |    96 +
+ .../components/chat/controls/RetryButton.test.tsx  |    41 +
+ webui/src/components/chat/controls/RetryButton.tsx |    21 +
+ .../src/components/settings/AppearanceTab.test.tsx |    64 +
+ webui/src/components/settings/AppearanceTab.tsx    |    31 +
+ webui/src/components/settings/BehaviorTab.test.tsx |    71 +
+ webui/src/components/settings/BehaviorTab.tsx      |    77 +
+ .../src/components/settings/ConnectionTab.test.tsx |   573 +
+ webui/src/components/settings/ConnectionTab.tsx    |   154 +
+ webui/src/components/settings/SettingsFooter.tsx   |    46 +
+ .../components/settings/SettingsScreen.test.tsx    |   703 +
+ webui/src/components/settings/SettingsScreen.tsx   |   191 +
+ webui/src/components/settings/SettingsTabs.tsx     |    54 +
+ .../settings/controls/ModelSelector.test.tsx       |   233 +
+ .../components/settings/controls/ModelSelector.tsx |   149 +
+ .../settings/controls/ProviderSelector.test.tsx    |   139 +
+ .../settings/controls/ProviderSelector.tsx         |    40 +
+ .../settings/controls/RandomnessSlider.test.tsx    |    79 +
+ .../settings/controls/RandomnessSlider.tsx         |    37 +
+ .../settings/controls/ThinkingSettings.test.tsx    |   184 +
+ .../settings/controls/ThinkingSettings.tsx         |    78 +
+ .../settings/controls/ToolToggles.test.tsx         |   140 +
+ .../components/settings/controls/ToolToggles.tsx   |    80 +
+ webui/src/hooks/chat/gemini-adapter.test.ts        |   324 +
+ webui/src/hooks/chat/gemini-adapter.ts             |    59 +
+ .../hooks/chat/helpers/streaming-helpers.test.ts   |   166 +
+ webui/src/hooks/chat/helpers/streaming-helpers.ts  |   137 +
+ .../chat/helpers/use-conversation-lock.test.ts     |   121 +
+ .../hooks/chat/helpers/use-conversation-lock.ts    |    94 +
+ webui/src/hooks/chat/openai-chat-adapter.test.ts   |   144 +
+ webui/src/hooks/chat/openai-chat-adapter.ts        |    64 +
+ webui/src/hooks/chat/responses-adapter.test.ts     |   152 +
+ webui/src/hooks/chat/responses-adapter.ts          |    79 +
+ webui/src/hooks/chat/use-chat.test.ts              |   728 +
+ webui/src/hooks/chat/use-chat.ts                   |   426 +
+ .../hooks/connection/use-mcp-connection.test.ts    |    88 +
+ webui/src/hooks/connection/use-mcp-connection.ts   |    47 +
+ webui/src/hooks/settings/config-builders.test.ts   |   633 +
+ webui/src/hooks/settings/config-builders.ts        |   313 +
+ webui/src/hooks/settings/settings-helpers.ts       |   330 +
+ .../hooks/settings/use-settings-providers.test.ts  |   109 +
+ webui/src/hooks/settings/use-settings.test.ts      |   644 +
+ webui/src/hooks/settings/use-settings.ts           |   224 +
+ webui/src/hooks/theme/use-theme.test.ts            |   140 +
+ webui/src/hooks/theme/use-theme.ts                 |    44 +
+ webui/src/lib/config.test.ts                       |   105 +
+ webui/src/lib/config.ts                            |    59 +
+ webui/src/lib/constants/models.ts                  |    94 +
+ webui/src/lib/constants/tools.ts                   |    53 +
+ webui/src/lib/error-formatters.ts                  |    15 +
+ webui/src/lib/rate-limit.test.ts                   |   268 +
+ webui/src/lib/rate-limit.ts                        |   206 +
+ webui/src/lib/utils/format-timestamp.test.ts       |    61 +
+ webui/src/lib/utils/format-timestamp.ts            |     9 +
+ webui/src/lib/utils/truncate-string.test.ts        |    52 +
+ webui/src/lib/utils/truncate-string.ts             |    19 +
+ webui/src/main.css                                 |     3 +
+ webui/src/main.test.tsx                            |    60 +
+ webui/src/main.tsx                                 |    11 +
+ webui/src/test-utils/gemini-client-test-helpers.ts |   127 +
+ webui/src/test-utils/message-test-helpers.test.ts  |   134 +
+ webui/src/test-utils/message-test-helpers.ts       |    21 +
+ webui/src/test-utils/openai-client-test-helpers.ts |   221 +
+ webui/src/types/env.d.ts                           |     9 +
+ webui/src/types/messages.ts                        |    83 +
+ webui/src/types/responses-api.ts                   |   113 +
+ webui/src/types/settings.ts                        |    90 +
+ webui/src/types/svg.d.ts                           |     4 +
+ webui/src/utils/mcp-url.test.ts                    |    41 +
+ webui/src/utils/mcp-url.ts                         |    27 +
+ webui/src/utils/provider-detection.test.ts         |    42 +
+ webui/src/utils/provider-detection.ts              |    20 +
+ webui/tsconfig.json                                |    32 +
+ 801 files changed, 160655 insertions(+)
